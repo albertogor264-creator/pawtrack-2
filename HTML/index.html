@@ -4,7 +4,328 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pawtrack 2.0</title>
-    <link rel="stylesheet" href="/CSS/estilos.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: #070c16;
+            color: #f1f5f9;
+            min-height: 100vh;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* --- LOGIN / REGISTRO --- */
+        .auth-wrapper {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: radial-gradient(circle at top, #0f1d36 0%, #070c16 70%);
+        }
+
+        .auth-card {
+            width: 100%;
+            max-width: 440px;
+            background: #0c1424;
+            border: 1px solid rgba(56, 189, 248, 0.14);
+            border-radius: 18px;
+            padding: 36px 28px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65);
+        }
+
+        .auth-title {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 24px;
+            letter-spacing: -0.5px;
+        }
+
+        .auth-title span {
+            color: #00f0ff;
+        }
+
+        .auth-tabs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            background: #070d19;
+            padding: 5px;
+            border-radius: 12px;
+            margin-bottom: 22px;
+        }
+
+        .tab-btn {
+            border: none;
+            background: transparent;
+            color: #94a3b8;
+            padding: 10px 12px;
+            border-radius: 9px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn.active {
+            background: #00e5ff;
+            color: #041018;
+        }
+
+        .input-group {
+            margin-bottom: 14px;
+        }
+
+        .input-group input {
+            width: 100%;
+            background: #091120;
+            border: 1px solid #1e293b;
+            border-radius: 12px;
+            padding: 14px 16px;
+            color: #f8fafc;
+            font-size: 0.98rem;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        .input-group input:focus {
+            border-color: #00e5ff;
+        }
+
+        .input-group input::placeholder {
+            color: #64748b;
+        }
+
+        .btn-primary-gradient {
+            width: 100%;
+            margin-top: 8px;
+            padding: 14px 18px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 800;
+            color: #041018;
+            background: linear-gradient(90deg, #00e5ff 0%, #00ff9d 100%);
+            cursor: pointer;
+            transition: transform 0.15s ease, opacity 0.2s ease;
+        }
+
+        .btn-primary-gradient:hover {
+            opacity: 0.95;
+            transform: translateY(-1px);
+        }
+
+        /* --- DASHBOARD --- */
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 24px;
+            background: #0c1424;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+            margin: 14px 18px 0;
+            border-radius: 14px;
+        }
+
+        .brand-header {
+            font-size: 1.15rem;
+            font-weight: 800;
+        }
+
+        .brand-header span {
+            color: #00e5ff;
+            font-weight: 600;
+        }
+
+        .user-actions {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            color: #cbd5e1;
+        }
+
+        .btn-logout {
+            background: rgba(239, 68, 68, 0.16);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.35);
+            padding: 7px 14px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1.05fr 1.45fr 0.95fr;
+            gap: 18px;
+            padding: 18px;
+            align-items: start;
+        }
+
+        .right-column {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .card {
+            background: #0c1424;
+            border: 1px solid rgba(148, 163, 184, 0.12);
+            border-radius: 16px;
+            padding: 18px;
+        }
+
+        .card h2 {
+            font-size: 1.05rem;
+            color: #38bdf8;
+            margin-bottom: 14px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .card-header h2 {
+            margin-bottom: 0;
+        }
+
+        .btn-add-dog {
+            background: #10b981;
+            color: #04150e;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        .data-table th {
+            text-align: left;
+            color: #38bdf8;
+            padding: 10px 8px;
+            border-bottom: 1px solid #1e293b;
+        }
+
+        .data-table td {
+            padding: 12px 8px;
+            border-bottom: 1px solid rgba(30, 41, 59, 0.7);
+            color: #e2e8f0;
+        }
+
+        .selected-row {
+            background: rgba(16, 185, 129, 0.12);
+        }
+
+        .btn-rastrear {
+            background: #00d8ff;
+            color: #041018;
+            border: none;
+            border-radius: 7px;
+            padding: 6px 12px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .metric-box {
+            background: #080f1c;
+            border: 1px solid #172338;
+            border-radius: 12px;
+            padding: 12px 8px;
+            text-align: center;
+        }
+
+        .metric-label {
+            display: block;
+            font-size: 0.76rem;
+            color: #94a3b8;
+            margin-bottom: 6px;
+        }
+
+        .metric-value {
+            font-size: 1rem;
+            font-weight: 800;
+        }
+
+        .metric-value.cyan {
+            color: #00e5ff;
+        }
+
+        .metric-value.green {
+            color: #10b981;
+        }
+
+        .map-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            gap: 8px;
+            font-size: 0.92rem;
+            font-weight: 700;
+        }
+
+        .coords-badge {
+            background: rgba(0, 229, 255, 0.12);
+            color: #00e5ff;
+            border: 1px solid rgba(0, 229, 255, 0.35);
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+        }
+
+        #map {
+            width: 100%;
+            height: 310px;
+            border-radius: 12px;
+            border: 1px solid #00e5ff;
+            overflow: hidden;
+        }
+
+        .muted-text {
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        @media (max-width: 1100px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .metrics-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
 </head>
 <body>
     <!-- PANTALLA INICIAL: SOLO LOGIN / REGISTRO -->
@@ -42,8 +363,8 @@
         </div>
     </div>
 
-    <!-- PANEL PRINCIPAL: OCULTO HASTA INICIAR SESIÓN -->
-    <div id="dashboard-container" class="hidden">
+    <!-- PANEL PRINCIPAL: OCULTO POR DEFECTO HASTA INICIAR SESIÓN -->
+    <div id="dashboard-container" class="hidden" style="display: none;">
         <header class="topbar">
             <div class="brand-header">🐾 Paw<span>track</span> 2.0 <span>| Panel de Control</span></div>
             <div class="user-actions">
@@ -53,7 +374,6 @@
         </header>
 
         <main class="dashboard-grid">
-            <!-- Columna izquierda: Registro de Mascotas -->
             <section class="card">
                 <div class="card-header">
                     <h2>🐶 Registro de Mascotas</h2>
@@ -78,7 +398,6 @@
                 </div>
             </section>
 
-            <!-- Columna central: Telemetría y Mapa en Vivo -->
             <section class="card">
                 <h2 id="telemetry-title">📡 Telemetría y Ubicación en Vivo</h2>
 
@@ -108,7 +427,6 @@
                 <div id="map"></div>
             </section>
 
-            <!-- Columna derecha: Alertas y Tabla de Registros -->
             <div class="right-column">
                 <section class="card">
                     <h2>🚨 Alertas del Sistema</h2>
