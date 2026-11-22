@@ -15,8 +15,23 @@ let trackingInterval = null;
 document.addEventListener('DOMContentLoaded', () => {
     if (currentUser) {
         showDashboard();
+    } else {
+        showAuthScreen();
     }
 });
+
+function showAuthScreen() {
+    const authEl = document.getElementById('auth-container');
+    const dashEl = document.getElementById('dashboard-container');
+    if (authEl) {
+        authEl.classList.remove('hidden');
+        authEl.style.display = 'flex';
+    }
+    if (dashEl) {
+        dashEl.classList.add('hidden');
+        dashEl.style.display = 'none';
+    }
+}
 
 function switchTab(tab) {
     document.getElementById('form-login').classList.toggle('hidden', tab !== 'login');
@@ -78,8 +93,16 @@ async function handleRegister(e) {
 }
 
 function showDashboard() {
-    document.getElementById('auth-container').classList.add('hidden');
-    document.getElementById('dashboard-container').classList.remove('hidden');
+    const authEl = document.getElementById('auth-container');
+    const dashEl = document.getElementById('dashboard-container');
+    if (authEl) {
+        authEl.classList.add('hidden');
+        authEl.style.display = 'none';
+    }
+    if (dashEl) {
+        dashEl.classList.remove('hidden');
+        dashEl.style.display = 'block';
+    }
     document.getElementById('user-display-name').innerText = `👤 ${currentUser.nombre}`;
     initMap();
     loadDogs();
@@ -94,7 +117,6 @@ function logout() {
     window.location.reload();
 }
 
-// Callback global requerido por Google Maps JavaScript API
 function initMap() {
     const mapElement = document.getElementById('map');
     if (!mapElement || typeof google === 'undefined' || !google.maps) return;
@@ -157,7 +179,6 @@ function updateGoogleMarker(lat, lon, dogName) {
     map.panTo(posicion);
 }
 
-// Cargar Tabla de Mascotas
 async function loadDogs() {
     try {
         const res = await fetch(`${API_URL}/perros/${currentUser.id}`);
@@ -198,7 +219,6 @@ async function loadDogs() {
     }
 }
 
-// Seleccionar perro y activar rastreo en tiempo real
 function selectDog(dogId, dogName, reloadTable = true) {
     selectedDogId = dogId;
     selectedDogName = dogName;
@@ -214,7 +234,6 @@ function selectDog(dogId, dogName, reloadTable = true) {
     }, 4000);
 }
 
-// Función que consulta los datos y actualiza el mapa y la tabla constantemente
 async function fetchDogLiveData(dogId, dogName) {
     try {
         const dispRes = await fetch(`${API_URL}/dispositivo/${dogId}`);
@@ -232,7 +251,6 @@ async function fetchDogLiveData(dogId, dogName) {
             return;
         }
 
-        // Cargar Historial de Mediciones
         const medRes = await fetch(`${API_URL}/historial-mediciones/${disp.id}`);
         const mediciones = await medRes.json();
         recordsBody.innerHTML = '';
@@ -263,7 +281,6 @@ async function fetchDogLiveData(dogId, dogName) {
             recordsBody.innerHTML = '<tr><td colspan="4" class="text-center">Sin mediciones registradas aún</td></tr>';
         }
 
-        // Cargar Ubicación GPS en Vivo
         const ubRes = await fetch(`${API_URL}/ubicacion/${disp.id}`);
         const ub = await ubRes.json();
 
