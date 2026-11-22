@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pawtrack 2.0 | Panel de Control</title>
+    <link rel="stylesheet" href="/CSS/estilos.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- PANTALLA DE LOGIN / REGISTRO -->
+    <div id="auth-container" class="auth-wrapper">
+        <div class="auth-card">
+            <h1 class="logo-text">🐾 Paw<span>track</span> 2.0</h1>
+            <div class="tabs">
+                <button id="tab-login" class="active" onclick="switchTab('login')">Iniciar Sesión</button>
+                <button id="tab-register" onclick="switchTab('register')">Registrarse</button>
+            </div>
+
+            <form id="form-login" onsubmit="handleLogin(event)">
+                <input type="email" id="login-correo" placeholder="Correo Electrónico" required>
+                <input type="password" id="login-password" placeholder="Contraseña" required>
+                <button type="submit" class="btn-neon">Entrar al Sistema</button>
+            </form>
+
+            <form id="form-register" class="hidden" onsubmit="handleRegister(event)">
+                <input type="text" id="reg-nombre" placeholder="Nombre Completo" required>
+                <input type="email" id="reg-correo" placeholder="Correo Electrónico" required>
+                <input type="password" id="reg-password" placeholder="Contraseña" required>
+                <button type="submit" class="btn-neon">Crear Cuenta</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- PANEL DE CONTROL PRINCIPAL -->
+    <div id="dashboard-container" class="dashboard hidden">
+        <header class="top-bar">
+            <h2>🐾 Pawtrack 2.0 | Panel de Control</h2>
+            <div class="user-info">
+                <span id="user-display-name"></span>
+                <button onclick="logout()" class="btn-logout">Cerrar Sesión</button>
+            </div>
+        </header>
+
+        <main class="main-grid">
+            <!-- COLUMNA 1: REGISTRO DE MASCOTAS (TABLA) -->
+            <section class="card glass">
+                <div class="card-header-flex">
+                    <h3>🐶 Registro de Mascotas</h3>
+                    <button onclick="openAddDogModal()" class="btn-green-pill">+ Registrar Perro</button>
+                </div>
+                <div class="table-wrapper">
+                    <table class="pets-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nombre</th>
+                                <th>Raza</th>
+                                <th>Edad</th>
+                                <th>Peso</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dogs-table-body">
+                            <tr><td colspan="6" class="text-center">Cargando mascotas...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- COLUMNA 2: TELEMETRÍA Y MAPA EN VIVO -->
+            <section class="card glass">
+                <h3 id="telemetry-title">📡 Telemetría y Ubicación en Vivo</h3>
+                
+                <div class="sensor-grid">
+                    <div class="metric-box">
+                        <span class="metric-title">Temperatura</span>
+                        <h4 id="val-temp">--</h4>
+                    </div>
+                    <div class="metric-box">
+                        <span class="metric-title">Pulso Cardíaco</span>
+                        <h4 id="val-pulso">--</h4>
+                    </div>
+                    <div class="metric-box">
+                        <span class="metric-title">Actividad</span>
+                        <h4 id="val-actividad">--</h4>
+                    </div>
+                    <div class="metric-box">
+                        <span class="metric-title">Batería GPS</span>
+                        <h4 id="val-bateria">--</h4>
+                    </div>
+                </div>
+
+                <div class="map-container-box">
+                    <div class="map-header">
+                        <span>📍 Mapa en Tiempo Real</span>
+                        <span class="coords-badge" id="coords-display">Lat: 0.0000 | Lon: 0.0000</span>
+                    </div>
+                    <div id="map" style="width: 100%; height: 320px; border-radius: 10px;"></div>
+                </div>
+            </section>
+
+            <!-- COLUMNA 3: ALERTAS Y TABLA DE REGISTROS DEL PERRO -->
+            <div class="right-stack">
+                <section class="card glass">
+                    <h3>🚨 Alertas del Sistema</h3>
+                    <div id="alerts-list">
+                        <p class="muted-text">Selecciona un perro para ver sus alertas.</p>
+                    </div>
+                </section>
+
+                <section class="card glass flex-grow">
+                    <h3>📋 Tabla de Registros del Perro</h3>
+                    <div class="table-wrapper">
+                        <table class="records-table">
+                            <thead>
+                                <tr>
+                                    <th>Fecha/Hora</th>
+                                    <th>Temp</th>
+                                    <th>Pulso</th>
+                                    <th>Actividad</th>
+                                </tr>
+                            </thead>
+                            <tbody id="records-table-body">
+                                <tr><td colspan="4" class="text-center">Selecciona "Rastrear" en un perro</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyClin4psaNVlZ--Set35wAAKq7cnykDQcA&callback=initMap" async defer></script>
+    <script src="../JAVASCRIPT/app.js"></script>
+</body>
+</html>
