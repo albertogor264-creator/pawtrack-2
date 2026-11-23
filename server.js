@@ -12,10 +12,6 @@ app.use(express.urlencoded({ extended: true }));
 
 const connectionString = process.env.DATABASE_URL;
 
-if (!connectionString) {
-  console.warn('Falta la variable de entorno DATABASE_URL.');
-}
-
 const pool = connectionString
   ? new Pool({
       connectionString,
@@ -24,8 +20,7 @@ const pool = connectionString
   : null;
 
 function getIndexHtml() {
-  const indexPath = path.join(__dirname, 'HTML', 'index.html');
-  return fs.readFileSync(indexPath, 'utf8');
+  return fs.readFileSync(path.join(__dirname, 'HTML', 'index.html'), 'utf8');
 }
 
 app.get('/', (req, res) => {
@@ -44,19 +39,19 @@ app.post('/api/login', async (req, res) => {
   }
   try {
     const correo = (req.body.correo || '').trim();
-    const password = req.body.contraseña ?? req.body.contrasena ?? '';
+    const password = req.body.contrasena ?? req.body.contraseña ?? '';
 
     if (!correo || !password) {
       return res.status(400).json({ success: false, message: 'Ingresa correo y contraseña' });
     }
 
     const result = await pool.query(
-      'SELECT id, nombre, correo, "contraseña" FROM usuarios WHERE correo = $1 LIMIT 1',
+      'SELECT "identificación" AS id, nombre, correo, contrasena FROM usuarios WHERE correo = $1 LIMIT 1',
       [correo]
     );
 
     const user = result.rows[0];
-    if (!user || user.contraseña !== password) {
+    if (!user || user.contrasena !== password) {
       return res.status(401).json({ success: false, message: 'Correo o contraseña incorrectos' });
     }
 
@@ -82,14 +77,14 @@ app.post('/api/registro', async (req, res) => {
   try {
     const nombre = (req.body.nombre || '').trim();
     const correo = (req.body.correo || '').trim();
-    const password = req.body.contraseña ?? req.body.contrasena ?? '';
+    const password = req.body.contrasena ?? req.body.contraseña ?? '';
 
     if (!nombre || !correo || !password) {
       return res.status(400).json({ success: false, message: 'Completa todos los campos' });
     }
 
     const existing = await pool.query(
-      'SELECT id FROM usuarios WHERE correo = $1 LIMIT 1',
+      'SELECT "identificación" AS id FROM usuarios WHERE correo = $1 LIMIT 1',
       [correo]
     );
 
@@ -98,7 +93,7 @@ app.post('/api/registro', async (req, res) => {
     }
 
     const inserted = await pool.query(
-      'INSERT INTO usuarios (nombre, correo, "contraseña") VALUES ($1, $2, $3) RETURNING id, nombre, correo',
+      'INSERT INTO usuarios (nombre, correo, contrasena) VALUES ($1, $2, $3) RETURNING "identificación" AS id, nombre, correo',
       [nombre, correo, password]
     );
 
@@ -117,7 +112,7 @@ app.get('/api/perros/:usuarioId', async (req, res) => {
   try {
     const usuarioId = Number(req.params.usuarioId);
     const result = await pool.query(
-      'SELECT * FROM perros WHERE usuario_id = $1 ORDER BY id ASC',
+      'SELECT "identificación" AS id, usuario_id, nombre, raza, edad, peso, fecha_registro FROM perros WHERE usuario_id = $1 ORDER BY "identificación" ASC',
       [usuarioId]
     );
     return res.json(result.rows);
@@ -135,7 +130,7 @@ app.post('/api/perros', async (req, res) => {
   try {
     const { usuario_id, nombre, raza, edad, peso } = req.body;
     const result = await pool.query(
-      'INSERT INTO perros (usuario_id, nombre, raza, edad, peso) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+      'INSERT INTO perros (usuario_id, nombre, raza, edad, peso) VALUES ($1, $2, $3, $4, $5) RETURNING "identificación" AS id, usuario_id, nombre, raza, edad, peso',
       [
         Number(usuario_id),
         nombre,
@@ -159,7 +154,7 @@ app.get('/api/dispositivo/:perroId', async (req, res) => {
   try {
     const perroId = Number(req.params.perroId);
     const result = await pool.query(
-      'SELECT * FROM dispositivos WHERE perro_id = $1 LIMIT 1',
+      'SELECT "identificación" AS id, código, perro_id, "batería" AS bateria FROM dispositivos WHERE perro_id = $1 LIMIT 1',
       [perroId]
     );
     return res.json(result.rows[0] || {});
@@ -169,7 +164,7 @@ app.get('/api/dispositivo/:perroId', async (req, res) => {
   }
 });
 
-// HISTORIAL DE MEDICIONES
+// HISTORIAL DE MEDICIONES (tabla "medir")
 app.get('/api/historial-mediciones/:dispositivoId', async (req, res) => {
   if (!pool) {
     return res.status(500).json({ error: 'Falta DATABASE_URL en el servidor' });
@@ -177,7 +172,7 @@ app.get('/api/historial-mediciones/:dispositivoId', async (req, res) => {
   try {
     const dispositivoId = Number(req.params.dispositivoId);
     const result = await pool.query(
-      'SELECT * FROM mediciones WHERE dispositivo_id = $1 ORDER BY fecha_hora DESC LIMIT 20',
+      'SELECT "identificación" AS id, dispositivo_id, temperatura, pulso, actividad, fecha_hora FROM medir WHERE dispositivo_id = $1 ORDER BY fecha_hora DESC LIMIT 20',
       [dispositivoId]
     );
     return res.json(result.rows);
@@ -195,7 +190,7 @@ app.get('/api/ubicacion/:dispositivoId', async (req, res) => {
   try {
     const dispositivoId = Number(req.params.dispositivoId);
     const result = await pool.query(
-      'SELECT * FROM ubicaciones WHERE dispositivo_id = $1 ORDER BY fecha_hora DESC LIMIT 1',
+      'SELECT "identificación" AS id, dispositivo_id, latitud, longitud, fecha_hora FROM ubicaciones WHERE dispositivo_id = $1 ORDER BY fecha_hora DESC LIMIT 1',
       [dispositivoId]
     );
     return res.json(result.rows[0] || {});
@@ -213,7 +208,7 @@ app.get('/api/alertas/:perroId', async (req, res) => {
   try {
     const perroId = Number(req.params.perroId);
     const result = await pool.query(
-      'SELECT * FROM alertas WHERE perro_id = $1 ORDER BY id DESC',
+      'SELECT "identificación" AS id, perro_id, tipo, "descripción" AS descripcion, fecha_hora, atendida FROM alertas WHERE perro_id = $1 ORDER BY "identificación" DESC',
       [perroId]
     );
     return res.json(result.rows);
@@ -223,7 +218,6 @@ app.get('/api/alertas/:perroId', async (req, res) => {
   }
 });
 
-// Cualquier otra ruta devuelve el index.html
 app.get('*', (req, res) => {
   try {
     res.type('html').send(getIndexHtml());
